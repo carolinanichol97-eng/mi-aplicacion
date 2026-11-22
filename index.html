@@ -1,0 +1,1326 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiMes — Organiza • Planifica • Disfruta</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #E8F0F6;
+      color: #0F2338;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Animación suave para mensajes y transiciones */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-up {
+      animation: slideUp 0.25s ease-out forwards;
+    }
+    /* Ocultar flechas en inputs numéricos para mayor limpieza visual */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center pb-28">
+
+  <!-- Contenedor principal tipo app móvil centrada -->
+  <div class="w-full max-w-lg min-h-screen bg-[#F3F7FA] shadow-xl sm:my-4 sm:min-h-[840px] sm:rounded-3xl sm:border sm:border-slate-200 flex flex-col relative overflow-hidden">
+
+    <!-- ENCABEZADO SUPERIOR CON IDENTIDAD VISUAL OFICIAL MiMes -->
+    <header class="bg-[#08243E] text-white px-4 pt-4 pb-4 border-b border-[#12385B] sticky top-0 z-20 shadow-md">
+      <div class="flex items-center justify-between gap-2">
+        <!-- Logo SVG vectorial fiel + Nombre MiMes + Eslogan -->
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-12 h-12 rounded-2xl bg-[#0B2B4A] border border-[#19456E] flex items-center justify-center p-1.5 shrink-0 shadow-inner">
+            <svg viewBox="0 0 120 105" class="w-full h-full overflow-visible" aria-label="Logo MiMes">
+              <defs>
+                <linearGradient id="limeArrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#6BB332" />
+                  <stop offset="100%" stop-color="#8CD147" />
+                </linearGradient>
+                <linearGradient id="cyanPillarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#55CBE0" />
+                  <stop offset="100%" stop-color="#35A9C2" />
+                </linearGradient>
+              </defs>
+              <!-- Pilar izquierdo blanco redondeado y diagonal -->
+              <path d="M 14 82 L 14 34 C 14 20, 32 18, 40 28 L 58 48 L 43 62 L 34 52 L 34 82 C 34 89, 14 89, 14 82 Z" fill="#FFFFFF" />
+              <!-- Pilar derecho azul cian con sombra sutil -->
+              <path d="M 52 72 C 67 62, 79 49, 89 35 C 94 28, 103 31, 103 40 L 103 82 C 103 89, 83 89, 83 82 L 83 58 C 73 66, 62 71, 52 72 Z" fill="url(#cyanPillarGrad)" />
+              <path d="M 96 36 C 100 36, 103 39, 103 44 L 103 82 C 103 86, 98 88, 95 87 L 95 42 Z" fill="#2894AC" opacity="0.55" />
+              <!-- Flecha verde lima ascendente cruzando hacia arriba a la derecha -->
+              <path d="M 38 64 C 52 67, 68 48, 86 27 L 78 21 L 108 12 L 102 42 L 94 35 C 74 58, 56 76, 38 64 Z" fill="url(#limeArrowGrad)" />
+            </svg>
+          </div>
+
+          <div class="min-w-0">
+            <h1 class="text-2xl sm:text-[26px] font-extrabold tracking-tight leading-none">
+              <span class="text-white">Mi</span><span class="text-[#55CBE0]">Mes</span>
+            </h1>
+            <p class="text-[11px] sm:text-xs text-slate-200 font-semibold mt-1 tracking-wide truncate">
+              Organiza <span class="text-[#7DC242]">•</span> Planifica <span class="text-[#7DC242]">•</span> Disfruta
+            </p>
+          </div>
+        </div>
+
+        <!-- Selector de moneda principal -->
+        <div class="flex items-center bg-[#0F3356] p-1 rounded-2xl border border-[#1E4B75] shrink-0" role="group" aria-label="Elegir moneda">
+          <button type="button" onclick="setActiveCurrency('CLP')" id="btn-curr-CLP"
+            class="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer">
+            CLP $
+          </button>
+          <button type="button" onclick="setActiveCurrency('USD')" id="btn-curr-USD"
+            class="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer">
+            USD $
+          </button>
+          <button type="button" onclick="setActiveCurrency('EUR')" id="btn-curr-EUR"
+            class="px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer">
+            EUR €
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de aviso / recordatorio inteligente -->
+      <div id="reminder-banner" class="hidden mt-3.5 bg-amber-50 border-2 border-amber-300 rounded-2xl p-3.5 flex items-start gap-3 animate-slide-up">
+        <span class="text-2xl leading-none mt-0.5">🔔</span>
+        <div class="flex-1">
+          <p class="text-sm font-extrabold text-amber-950" id="reminder-banner-title">Recordatorio de pago</p>
+          <p class="text-sm text-amber-900 mt-0.5 leading-snug" id="reminder-banner-text"></p>
+        </div>
+        <button type="button" onclick="dismissBanner()" aria-label="Cerrar aviso"
+          class="text-amber-800 hover:text-amber-950 font-bold text-lg px-2 py-1 rounded-xl cursor-pointer">
+          ✕
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL DE PESTAÑAS -->
+    <main class="flex-1 px-4 pt-5 pb-8 space-y-5 overflow-y-auto">
+
+      <!-- ==================== PESTAÑA 1: HOY ==================== -->
+      <section id="tab-hoy" class="space-y-5 animate-slide-up">
+
+        <!-- Tarjeta Principal en Azul Marino Institucional: Te queda para este mes -->
+        <div class="bg-gradient-to-br from-[#08243E] via-[#0B2B4A] to-[#103A63] text-white rounded-3xl p-6 shadow-md border border-[#1A4975]">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[#55CBE0] text-sm sm:text-base font-extrabold uppercase tracking-wide">
+              Te queda para este mes
+            </span>
+            <button type="button" onclick="openBudgetModal()"
+              class="bg-[#15426D] hover:bg-[#1C5285] active:scale-95 text-white border border-[#2B6499] text-xs sm:text-sm font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shrink-0">
+              ✏️ Cambiar dinero del mes
+            </button>
+          </div>
+
+          <div class="mt-3 mb-2">
+            <p id="available-amount" class="text-4xl sm:text-[42px] font-extrabold tracking-tight leading-tight text-white">
+              $ 0 CLP
+            </p>
+            <p id="available-status-msg" class="text-slate-200 text-base mt-1 font-medium">
+              Vas muy bien con tus cuentas este mes.
+            </p>
+          </div>
+
+          <!-- Resumen rápido en 3 bloques simples -->
+          <div class="grid grid-cols-3 gap-2.5 mt-5 pt-4 border-t border-white/15 text-center">
+            <div class="bg-white/10 rounded-2xl p-2.5">
+              <p class="text-xs text-[#55CBE0] font-semibold">Dinero del mes</p>
+              <p id="summary-income" class="text-sm sm:text-base font-bold mt-0.5 truncate text-white">$ 0</p>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-2.5">
+              <p class="text-xs text-[#55CBE0] font-semibold">Ya gastado</p>
+              <p id="summary-spent" class="text-sm sm:text-base font-bold mt-0.5 truncate text-white">$ 0</p>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-2.5">
+              <p class="text-xs text-[#8CD147] font-semibold">Apartado ahorro</p>
+              <p id="summary-saved" class="text-sm sm:text-base font-bold mt-0.5 truncate text-white">$ 0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón Gigante en Verde Lima Oficial: Anotar gasto o cuenta -->
+        <button type="button" onclick="openAddModal()"
+          class="w-full bg-[#7DC242] hover:bg-[#6EB235] active:scale-[0.99] text-[#08243E] font-extrabold text-xl py-4.5 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-3 transition cursor-pointer border-b-4 border-[#5D9B2A]">
+          <span class="bg-[#08243E] text-[#8CD147] w-9 h-9 rounded-xl flex items-center justify-center text-2xl font-extrabold">+</span>
+          <span>Anotar gasto o cuenta</span>
+        </button>
+
+        <!-- Sección: Próximos Pagos y Recordatorios -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-3.5">
+            <h2 class="text-xl font-extrabold text-[#08243E] flex items-center gap-2">
+              <span>⏰</span> Próximos pagos
+            </h2>
+            <span id="pending-count-badge" class="bg-[#E6F7FA] text-[#0B2B4A] border border-[#43C0D8]/40 text-sm font-extrabold px-3 py-1 rounded-full">
+              0 pendientes
+            </span>
+          </div>
+
+          <div id="upcoming-bills-list" class="space-y-3">
+            <!-- Se llena dinámicamente -->
+          </div>
+        </div>
+
+        <!-- Sección: Últimos gastos pagados hoy / este mes -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-extrabold text-[#08243E]">🧾 Últimos gastos anotados</h2>
+            <button type="button" onclick="switchTab('cuentas')" class="text-[#198299] font-extrabold text-sm hover:underline cursor-pointer">
+              Ver todos →
+            </button>
+          </div>
+          <div id="recent-paid-list" class="space-y-2.5">
+            <!-- Se llena dinámicamente -->
+          </div>
+        </div>
+
+        <!-- Control de datos de ejemplo -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p class="text-sm text-slate-600 text-center sm:text-left font-medium">
+            ¿Quieres empezar con tu propia información desde cero?
+          </p>
+          <div class="flex gap-2 shrink-0">
+            <button type="button" onclick="openConfirmClearModal()"
+              class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-sm px-3.5 py-2 rounded-xl transition cursor-pointer">
+              🗑️ Limpiar datos
+            </button>
+            <button type="button" onclick="restoreSampleData()"
+              class="bg-slate-100 hover:bg-slate-200 text-[#08243E] border border-slate-300 font-bold text-sm px-3.5 py-2 rounded-xl transition cursor-pointer">
+              🔄 Cargar ejemplos
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA 2: CUENTAS Y DEUDAS ==================== -->
+      <section id="tab-cuentas" class="hidden space-y-5 animate-slide-up">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <h2 class="text-2xl font-extrabold text-[#08243E]">Cuentas y Deudas</h2>
+            <p class="text-base text-slate-600">Todo ordenado en <strong id="cuentas-curr-label" class="text-[#0B2B4A]">CLP $</strong></p>
+          </div>
+          <button type="button" onclick="openAddModal('pending')"
+            class="bg-[#43C0D8] hover:bg-[#35ACC4] text-[#08243E] font-extrabold text-base px-4 py-3 rounded-2xl shadow-sm transition cursor-pointer shrink-0">
+            + Nueva cuenta
+          </button>
+        </div>
+
+        <!-- Pendientes por pagar -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
+          <h3 class="text-lg font-extrabold text-[#0B2B4A] mb-3 flex items-center gap-2">
+            <span>📌</span> Pendientes por pagar
+          </h3>
+          <div id="all-pending-list" class="space-y-3"></div>
+        </div>
+
+        <!-- Pagadas este mes -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
+          <h3 class="text-lg font-extrabold text-[#4E8A1E] mb-3 flex items-center gap-2">
+            <span>✅</span> Pagadas este mes
+          </h3>
+          <div id="all-paid-list" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- ==================== PESTAÑA 3: AHORRO ==================== -->
+      <section id="tab-ahorro" class="hidden space-y-5 animate-slide-up">
+        <div>
+          <h2 class="text-2xl font-extrabold text-[#08243E]">Mi Alcancía de Ahorro</h2>
+          <p class="text-base text-slate-600">Guarda poco a poco lo que te va quedando para disfrutar tranquilo.</p>
+        </div>
+
+        <!-- Tarjeta de ahorro en moneda activa -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-bold text-slate-500 uppercase">Ahorrado en <span id="savings-curr-name">Pesos Chilenos</span></p>
+              <p id="savings-total-display" class="text-3xl sm:text-4xl font-extrabold text-[#08243E] mt-1">$ 0 CLP</p>
+            </div>
+            <div class="w-14 h-14 rounded-2xl bg-[#E6F7FA] border border-[#43C0D8]/30 flex items-center justify-center text-4xl">
+              🐷
+            </div>
+          </div>
+
+          <!-- Barra de progreso de meta en verde lima -->
+          <div class="bg-[#F3F7FA] p-4 rounded-2xl border border-slate-200">
+            <div class="flex items-center justify-between text-sm font-bold mb-2">
+              <span class="text-[#08243E]">Meta de ahorro: <span id="savings-goal-display">$ 0</span></span>
+              <button type="button" onclick="openGoalModal()" class="text-[#198299] font-extrabold underline cursor-pointer">
+                Cambiar meta
+              </button>
+            </div>
+            <div class="w-full h-5 bg-slate-200 rounded-full overflow-hidden">
+              <div id="savings-progress-bar" class="h-full bg-[#7DC242] rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p id="savings-progress-text" class="text-sm text-slate-700 font-semibold mt-2">
+              Llevas el 0% de tu meta.
+            </p>
+          </div>
+
+          <!-- Formulario rápido para apartar dinero desde lo disponible -->
+          <div class="pt-2 border-t border-slate-100">
+            <label for="save-amount-input" class="block text-base font-extrabold text-[#08243E] mb-2">
+              ¿Cuánto quieres apartar hoy para tu ahorro?
+            </label>
+            <p class="text-sm text-slate-600 mb-3">
+              Disponible ahora en este mes: <strong id="savings-available-hint" class="text-[#08243E]">$ 0</strong>
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input type="number" id="save-amount-input" inputmode="decimal" placeholder="Ej: 20000"
+                class="flex-1 text-xl font-bold px-4 py-3.5 rounded-2xl border-2 border-slate-300 focus:border-[#43C0D8] focus:outline-none" />
+              <button type="button" onclick="addSavings()"
+                class="bg-[#7DC242] hover:bg-[#6EB235] active:scale-95 text-[#08243E] font-extrabold text-lg px-6 py-3.5 rounded-2xl shadow-sm transition cursor-pointer">
+                Guardar en alcancía
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen de alcancía en las 3 monedas -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
+          <h3 class="text-lg font-extrabold text-[#08243E] mb-3">🌍 Tu ahorro en las 3 monedas</h3>
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-[#F3F7FA] border border-slate-200">
+              <span class="font-bold text-slate-700 text-base">🇨🇱 Peso Chileno (CLP)</span>
+              <span id="all-savings-CLP" class="font-extrabold text-lg text-[#08243E]">$ 0 CLP</span>
+            </div>
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-[#F3F7FA] border border-slate-200">
+              <span class="font-bold text-slate-700 text-base">🇺🇸 Dólar (USD)</span>
+              <span id="all-savings-USD" class="font-extrabold text-lg text-[#08243E]">$ 0.00 USD</span>
+            </div>
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-[#F3F7FA] border border-slate-200">
+              <span class="font-bold text-slate-700 text-base">🇪🇺 Euro (EUR)</span>
+              <span id="all-savings-EUR" class="font-extrabold text-lg text-[#08243E]">€ 0.00 EUR</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- BARRA DE NAVEGACIÓN INFERIOR FIJA -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white border-t-2 border-slate-200 px-3 py-2 flex justify-around items-center z-30 shadow-lg sm:rounded-b-3xl" aria-label="Navegación principal">
+      <button type="button" onclick="switchTab('hoy')" id="nav-hoy"
+        class="flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-2xl font-extrabold text-base transition cursor-pointer">
+        <span class="text-2xl mb-0.5">🏠</span>
+        <span>Hoy</span>
+      </button>
+      <button type="button" onclick="switchTab('cuentas')" id="nav-cuentas"
+        class="flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-2xl font-extrabold text-base transition cursor-pointer relative">
+        <span class="text-2xl mb-0.5">📅</span>
+        <span>Cuentas y Deudas</span>
+        <span id="nav-badge-pending" class="hidden absolute top-1.5 right-5 bg-[#08243E] text-[#55CBE0] text-xs font-extrabold w-5 h-5 rounded-full flex items-center justify-center">
+          0
+        </span>
+      </button>
+      <button type="button" onclick="switchTab('ahorro')" id="nav-ahorro"
+        class="flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-2xl font-extrabold text-base transition cursor-pointer">
+        <span class="text-2xl mb-0.5">🐷</span>
+        <span>Ahorro</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ==================== MODAL 1: ANOTAR GASTO O CUENTA ==================== -->
+  <div id="modal-add" class="hidden fixed inset-0 bg-[#08243E]/70 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 max-h-[92vh] overflow-y-auto shadow-2xl animate-slide-up">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-extrabold text-[#08243E]">Anotar gasto o cuenta</h2>
+        <button type="button" onclick="closeAddModal()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-[#08243E] font-bold text-xl flex items-center justify-center cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <form id="add-form" onsubmit="handleSaveMovement(event)" class="space-y-5">
+        <!-- Paso 1: Categoría con botones grandes -->
+        <div>
+          <label class="block text-base font-extrabold text-[#08243E] mb-2.5">
+            1. ¿Qué es? (Toca una opción)
+          </label>
+          <div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5" id="category-grid">
+            <!-- Botones generados por JS -->
+          </div>
+        </div>
+
+        <!-- Nota corta opcional -->
+        <div>
+          <label for="input-note" class="block text-base font-bold text-[#08243E] mb-1.5">
+            Nombre corto (opcional)
+          </label>
+          <input type="text" id="input-note" placeholder="Ej: Cuenta de luz, Compra feria, Cuota tarjeta..."
+            class="w-full text-lg px-4 py-3 rounded-2xl border-2 border-slate-300 focus:border-[#43C0D8] focus:outline-none" />
+        </div>
+
+        <!-- Paso 2: Monto y Moneda -->
+        <div>
+          <label for="input-amount" class="block text-base font-extrabold text-[#08243E] mb-1.5">
+            2. ¿Cuánto dinero es?
+          </label>
+          <div class="flex gap-2.5">
+            <input type="number" id="input-amount" step="any" min="0.01" required inputmode="decimal" placeholder="0"
+              class="flex-1 text-2xl font-extrabold px-4 py-3.5 rounded-2xl border-2 border-slate-300 focus:border-[#43C0D8] focus:outline-none" />
+            <select id="input-currency" aria-label="Moneda del gasto"
+              class="text-lg font-extrabold px-4 py-3.5 rounded-2xl border-2 border-slate-300 bg-[#F3F7FA] text-[#08243E] focus:border-[#43C0D8] focus:outline-none cursor-pointer">
+              <option value="CLP">CLP $</option>
+              <option value="USD">USD $</option>
+              <option value="EUR">EUR €</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Paso 3: Ya pagado vs Por pagar -->
+        <div>
+          <label class="block text-base font-extrabold text-[#08243E] mb-2">
+            3. ¿Ya lo pagaste o es por pagar?
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button type="button" id="btn-status-paid" onclick="setFormStatus('paid')"
+              class="p-3.5 rounded-2xl border-2 font-extrabold text-base text-left flex items-center gap-3 transition cursor-pointer">
+              <span class="text-2xl">✅</span>
+              <div>
+                <div>Ya lo pagué hoy</div>
+                <div class="text-xs font-medium opacity-80">Se descuenta al tiro</div>
+              </div>
+            </button>
+            <button type="button" id="btn-status-pending" onclick="setFormStatus('pending')"
+              class="p-3.5 rounded-2xl border-2 font-extrabold text-base text-left flex items-center gap-3 transition cursor-pointer">
+              <span class="text-2xl">⏰</span>
+              <div>
+                <div>Por pagar</div>
+                <div class="text-xs font-medium opacity-80">Con recordatorio</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Fecha límite si es "Por pagar" -->
+        <div id="due-date-container" class="hidden bg-[#E6F7FA] p-4 rounded-2xl border-2 border-[#43C0D8] space-y-2">
+          <label for="input-due-date" class="block text-base font-extrabold text-[#08243E]">
+            📅 ¿Qué día vence el pago?
+          </label>
+          <input type="date" id="input-due-date"
+            class="w-full text-lg font-bold px-4 py-3 rounded-xl border-2 border-[#43C0D8] bg-white text-[#08243E] focus:border-[#08243E] focus:outline-none" />
+          <p class="text-sm text-[#0B2B4A] font-medium">
+            🔔 MiMes te avisará en pantalla cuando falte poco para esta fecha.
+          </p>
+        </div>
+
+        <button type="submit"
+          class="w-full bg-[#7DC242] hover:bg-[#6EB235] active:scale-[0.99] text-[#08243E] font-extrabold text-xl py-4 rounded-2xl shadow-md transition cursor-pointer border-b-4 border-[#5D9B2A]">
+          Guardar ahora
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: CONFIGURAR DINERO DEL MES ==================== -->
+  <div id="modal-budget" class="hidden fixed inset-0 bg-[#08243E]/70 backdrop-blur-xs z-40 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate-slide-up space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-extrabold text-[#08243E]">Dinero disponible del mes</h2>
+        <button type="button" onclick="closeBudgetModal()" class="w-9 h-9 rounded-full bg-slate-100 font-bold text-lg cursor-pointer">✕</button>
+      </div>
+      <p class="text-base text-slate-600">
+        Escribe cuánto dinero tienes para gastar este mes en <strong id="budget-modal-curr" class="text-[#08243E]">CLP $</strong> (por ejemplo tu sueldo, pensión o presupuesto mensual).
+      </p>
+      <div>
+        <label for="budget-input" class="block text-sm font-bold text-[#08243E] mb-1.5">Monto total del mes</label>
+        <input type="number" id="budget-input" step="any" min="0" inputmode="decimal"
+          class="w-full text-2xl font-extrabold px-4 py-3.5 rounded-2xl border-2 border-slate-300 focus:border-[#43C0D8] focus:outline-none" />
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeBudgetModal()"
+          class="flex-1 bg-slate-100 hover:bg-slate-200 text-[#08243E] font-bold text-base py-3.5 rounded-2xl cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" onclick="saveBudget()"
+          class="flex-1 bg-[#7DC242] hover:bg-[#6EB235] text-[#08243E] font-extrabold text-base py-3.5 rounded-2xl cursor-pointer">
+          Guardar monto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: CAMBIAR META DE AHORRO ==================== -->
+  <div id="modal-goal" class="hidden fixed inset-0 bg-[#08243E]/70 backdrop-blur-xs z-40 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate-slide-up space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-extrabold text-[#08243E]">Tu meta de ahorro</h2>
+        <button type="button" onclick="closeGoalModal()" class="w-9 h-9 rounded-full bg-slate-100 font-bold text-lg cursor-pointer">✕</button>
+      </div>
+      <p class="text-base text-slate-600">
+        ¿Cuánto te gustaría juntar en <strong id="goal-modal-curr" class="text-[#08243E]">CLP $</strong>?
+      </p>
+      <input type="number" id="goal-input" step="any" min="1" inputmode="decimal"
+        class="w-full text-2xl font-extrabold px-4 py-3.5 rounded-2xl border-2 border-slate-300 focus:border-[#43C0D8] focus:outline-none" />
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeGoalModal()"
+          class="flex-1 bg-slate-100 hover:bg-slate-200 text-[#08243E] font-bold text-base py-3.5 rounded-2xl cursor-pointer">
+          Cancelar
+        </button>
+        <button type="button" onclick="saveGoal()"
+          class="flex-1 bg-[#7DC242] hover:bg-[#6EB235] text-[#08243E] font-extrabold text-base py-3.5 rounded-2xl cursor-pointer">
+          Guardar meta
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 4: CONFIRMAR LIMPIEZA DE DATOS ==================== -->
+  <div id="modal-clear" class="hidden fixed inset-0 bg-[#08243E]/70 backdrop-blur-xs z-40 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate-slide-up space-y-4">
+      <div class="text-4xl text-center">🧹</div>
+      <h2 class="text-xl font-extrabold text-[#08243E] text-center">¿Borrar los datos de ejemplo?</h2>
+      <p class="text-base text-slate-600 text-center">
+        Se dejarán todos los montos y cuentas en cero para que anotes tu propio dinero desde el principio.
+      </p>
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeConfirmClearModal()"
+          class="flex-1 bg-slate-100 hover:bg-slate-200 text-[#08243E] font-bold text-base py-3.5 rounded-2xl cursor-pointer">
+          No, volver
+        </button>
+        <button type="button" onclick="clearAllData()"
+          class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-base py-3.5 rounded-2xl cursor-pointer">
+          Sí, dejar en cero
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENSAJE FLOTANTE AMIGABLE (TOAST) -->
+  <div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#08243E] text-white border-2 border-[#43C0D8] px-5 py-3.5 rounded-2xl shadow-xl font-bold text-base flex items-center gap-2.5 animate-slide-up">
+    <span id="toast-icon">✅</span>
+    <span id="toast-message">¡Listo!</span>
+  </div>
+
+  <script>
+    // =========================================================================
+    // CONFIGURACIÓN Y ESTADO DE LA APLICACIÓN "MiMes"
+    // =========================================================================
+    const STORAGE_KEY = 'mimes_app_state_v1';
+
+    const CATEGORIES = [
+      { id: 'luz', label: 'Luz', icon: '💡' },
+      { id: 'agua', label: 'Agua', icon: '💧' },
+      { id: 'internet', label: 'Internet', icon: '🌐' },
+      { id: 'super', label: 'Súper', icon: '🛒' },
+      { id: 'ropa', label: 'Ropa', icon: '👕' },
+      { id: 'deuda', label: 'Deuda', icon: '💳' },
+      { id: 'otro', label: 'Otro', icon: '➕' }
+    ];
+
+    const CURRENCY_INFO = {
+      CLP: { code: 'CLP', name: 'Pesos Chilenos', symbol: '$', decimals: 0 },
+      USD: { code: 'USD', name: 'Dólares', symbol: '$', decimals: 2 },
+      EUR: { code: 'EUR', name: 'Euros', symbol: '€', decimals: 2 }
+    };
+
+    // Utilidad para fechas relativas a hoy (para ejemplos siempre vigentes)
+    function getRelativeDateISO(daysOffset) {
+      const date = new Date();
+      date.setDate(date.getDate() + daysOffset);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // Datos iniciales de ejemplo
+    function getInitialSampleState() {
+      return {
+        activeCurrency: 'CLP',
+        budgets: {
+          CLP: 650000,
+          USD: 800,
+          EUR: 750
+        },
+        savings: {
+          CLP: 120000,
+          USD: 150,
+          EUR: 100
+        },
+        savingsGoals: {
+          CLP: 300000,
+          USD: 500,
+          EUR: 500
+        },
+        movements: [
+          {
+            id: 'm1',
+            category: 'luz',
+            note: 'Cuenta de Luz',
+            amount: 34500,
+            currency: 'CLP',
+            status: 'pending',
+            dueDate: getRelativeDateISO(1), // Vence mañana
+            createdAt: getRelativeDateISO(-2)
+          },
+          {
+            id: 'm2',
+            category: 'internet',
+            note: 'Internet Hogar',
+            amount: 24990,
+            currency: 'CLP',
+            status: 'pending',
+            dueDate: getRelativeDateISO(4), // En 4 días
+            createdAt: getRelativeDateISO(-3)
+          },
+          {
+            id: 'm3',
+            category: 'agua',
+            note: 'Cuenta de Agua',
+            amount: 19800,
+            currency: 'CLP',
+            status: 'pending',
+            dueDate: getRelativeDateISO(0), // Vence hoy
+            createdAt: getRelativeDateISO(-5)
+          },
+          {
+            id: 'm4',
+            category: 'super',
+            note: 'Compra semanal supermercado',
+            amount: 68400,
+            currency: 'CLP',
+            status: 'paid',
+            dueDate: getRelativeDateISO(-1),
+            createdAt: getRelativeDateISO(-1)
+          },
+          {
+            id: 'm5',
+            category: 'ropa',
+            note: 'Zapatillas y polera',
+            amount: 35000,
+            currency: 'CLP',
+            status: 'paid',
+            dueDate: getRelativeDateISO(-4),
+            createdAt: getRelativeDateISO(-4)
+          },
+          {
+            id: 'm6',
+            category: 'internet',
+            note: 'Plan teléfono móvil',
+            amount: 25.00,
+            currency: 'USD',
+            status: 'pending',
+            dueDate: getRelativeDateISO(2),
+            createdAt: getRelativeDateISO(-1)
+          },
+          {
+            id: 'm7',
+            category: 'super',
+            note: 'Compra mercado',
+            amount: 42.50,
+            currency: 'EUR',
+            status: 'paid',
+            dueDate: getRelativeDateISO(-1),
+            createdAt: getRelativeDateISO(-1)
+          }
+        ]
+      };
+    }
+
+    let state = loadState();
+    let currentTab = 'hoy';
+    let selectedCategory = 'luz';
+    let selectedFormStatus = 'paid';
+    let bannerDismissed = false;
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          return JSON.parse(saved);
+        }
+      } catch (e) {
+        console.error('Error leyendo localStorage:', e);
+      }
+      return getInitialSampleState();
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Error guardando en localStorage:', e);
+      }
+    }
+
+    // =========================================================================
+    // FORMATEO DE MONEDAS (CLP sin decimales con puntos; USD/EUR con 2 decimales)
+    // =========================================================================
+    function formatMoney(amount, currencyCode) {
+      const num = Number(amount) || 0;
+      if (currencyCode === 'CLP') {
+        const rounded = Math.round(num);
+        const formatted = rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return `$ ${formatted} CLP`;
+      }
+      if (currencyCode === 'USD') {
+        return `$ ${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+      }
+      if (currencyCode === 'EUR') {
+        return `€ ${num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EUR`;
+      }
+      return `${num} ${currencyCode}`;
+    }
+
+    function formatShortMoney(amount, currencyCode) {
+      const num = Number(amount) || 0;
+      if (currencyCode === 'CLP') {
+        const rounded = Math.round(num);
+        return `$ ${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`;
+      }
+      if (currencyCode === 'USD') {
+        return `$ ${num.toFixed(2)}`;
+      }
+      return `€ ${num.toFixed(2)}`;
+    }
+
+    // =========================================================================
+    // CÁLCULOS DE VENCIMIENTO Y RECORDATORIOS
+    // =========================================================================
+    function getDueStatusInfo(dueDateStr) {
+      if (!dueDateStr) {
+        return { label: 'Sin fecha', badgeClass: 'bg-slate-100 text-slate-700', priority: 99 };
+      }
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [y, m, d] = dueDateStr.split('-').map(Number);
+      const due = new Date(y, m - 1, d);
+      due.setHours(0, 0, 0, 0);
+
+      const diffTime = due.getTime() - today.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 0) {
+        const daysAgo = Math.abs(diffDays);
+        return {
+          label: daysAgo === 1 ? '⚠️ Venció ayer' : `⚠️ Venció hace ${daysAgo} días`,
+          badgeClass: 'bg-rose-100 text-rose-800 border border-rose-300',
+          priority: 0
+        };
+      }
+      if (diffDays === 0) {
+        return {
+          label: '🔴 Vence HOY',
+          badgeClass: 'bg-rose-100 text-rose-800 border border-rose-300',
+          priority: 1
+        };
+      }
+      if (diffDays === 1) {
+        return {
+          label: '🟠 Vence mañana',
+          badgeClass: 'bg-amber-100 text-amber-900 border border-amber-300',
+          priority: 2
+        };
+      }
+      if (diffDays <= 5) {
+        return {
+          label: `🟡 En ${diffDays} días`,
+          badgeClass: 'bg-amber-50 text-amber-800 border border-amber-200',
+          priority: 3
+        };
+      }
+      const formattedDate = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}`;
+      return {
+        label: `📅 Para el ${formattedDate}`,
+        badgeClass: 'bg-slate-100 text-slate-700',
+        priority: 4
+      };
+    }
+
+    function getCategoryMeta(catId) {
+      return CATEGORIES.find(c => c.id === catId) || CATEGORIES[CATEGORIES.length - 1];
+    }
+
+    // =========================================================================
+    // CÁLCULOS FINANCIEROS POR MONEDA
+    // =========================================================================
+    function getTotalsForCurrency(curr) {
+      const income = Number(state.budgets[curr]) || 0;
+      const saved = Number(state.savings[curr]) || 0;
+
+      const paidExpenses = state.movements
+        .filter(m => m.currency === curr && m.status === 'paid')
+        .reduce((acc, m) => acc + (Number(m.amount) || 0), 0);
+
+      const pendingTotal = state.movements
+        .filter(m => m.currency === curr && m.status === 'pending')
+        .reduce((acc, m) => acc + (Number(m.amount) || 0), 0);
+
+      const available = income - paidExpenses - saved;
+
+      return { income, paidExpenses, saved, available, pendingTotal };
+    }
+
+    // =========================================================================
+    // RENDERIZADO DE TODA LA INTERFAZ
+    // =========================================================================
+    function renderAll() {
+      const curr = state.activeCurrency;
+      const totals = getTotalsForCurrency(curr);
+
+      // 1. Botones de moneda activos con colores institucionales (Cian activo sobre Azul Marino)
+      ['CLP', 'USD', 'EUR'].forEach(code => {
+        const btn = document.getElementById(`btn-curr-${code}`);
+        if (code === curr) {
+          btn.className = 'px-2.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-[#43C0D8] text-[#08243E] shadow-xs transition-all cursor-pointer';
+        } else {
+          btn.className = 'px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-200 hover:text-white transition-all cursor-pointer';
+        }
+      });
+
+      // 2. Tarjeta principal "Te queda para este mes"
+      const availableEl = document.getElementById('available-amount');
+      const statusMsgEl = document.getElementById('available-status-msg');
+      availableEl.textContent = formatMoney(totals.available, curr);
+
+      if (totals.available < 0) {
+        statusMsgEl.textContent = '⚠️ Ojo: gastaste más del dinero que pusiste para el mes.';
+      } else if (totals.pendingTotal > totals.available) {
+        statusMsgEl.textContent = `Recuerda que tienes ${formatMoney(totals.pendingTotal, curr)} en cuentas por pagar.`;
+      } else {
+        statusMsgEl.textContent = 'Todo en orden. Tienes saldo disponible para tus gastos.';
+      }
+
+      document.getElementById('summary-income').textContent = formatShortMoney(totals.income, curr);
+      document.getElementById('summary-spent').textContent = formatShortMoney(totals.paidExpenses, curr);
+      document.getElementById('summary-saved').textContent = formatShortMoney(totals.saved, curr);
+
+      // 3. Cuentas pendientes de la moneda activa ordenadas por urgencia
+      const pendingItems = state.movements
+        .filter(m => m.currency === curr && m.status === 'pending')
+        .sort((a, b) => getDueStatusInfo(a.dueDate).priority - getDueStatusInfo(b.dueDate).priority);
+
+      const paidItems = state.movements
+        .filter(m => m.currency === curr && m.status === 'paid')
+        .slice()
+        .reverse();
+
+      // Badge de pendientes
+      document.getElementById('pending-count-badge').textContent =
+        pendingItems.length === 1 ? '1 pendiente' : `${pendingItems.length} pendientes`;
+
+      const navBadge = document.getElementById('nav-badge-pending');
+      if (pendingItems.length > 0) {
+        navBadge.textContent = pendingItems.length;
+        navBadge.classList.remove('hidden');
+      } else {
+        navBadge.classList.add('hidden');
+      }
+
+      // Banner recordatorio inteligente si hay pagos urgentes (hoy, mañana o vencidos)
+      updateReminderBanner(pendingItems, curr);
+
+      // Renderizar listas en pestaña Hoy
+      renderUpcomingBills(pendingItems);
+      renderRecentPaid(paidItems.slice(0, 4));
+
+      // Renderizar pestaña Cuentas y Deudas
+      document.getElementById('cuentas-curr-label').textContent = `${curr} ${CURRENCY_INFO[curr].symbol}`;
+      renderAllPendingList(pendingItems);
+      renderAllPaidList(paidItems);
+
+      // Renderizar pestaña Ahorro
+      renderSavingsTab(curr, totals);
+
+      // Actualizar estado visual de pestañas
+      updateTabNavigationUI();
+    }
+
+    function updateReminderBanner(pendingItems, curr) {
+      const banner = document.getElementById('reminder-banner');
+      if (bannerDismissed) {
+        banner.classList.add('hidden');
+        return;
+      }
+
+      const urgent = pendingItems.find(item => {
+        const info = getDueStatusInfo(item.dueDate);
+        return info.priority <= 2; // Vencida, hoy o mañana
+      });
+
+      if (urgent) {
+        const cat = getCategoryMeta(urgent.category);
+        const info = getDueStatusInfo(urgent.dueDate);
+        const title = urgent.note || cat.label;
+        document.getElementById('reminder-banner-title').textContent = `Recordatorio: ${info.label}`;
+        document.getElementById('reminder-banner-text').textContent =
+          `Tu pago de ${cat.icon} ${title} por ${formatMoney(urgent.amount, curr)} está pendiente.`;
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function dismissBanner() {
+      bannerDismissed = true;
+      document.getElementById('reminder-banner').classList.add('hidden');
+    }
+
+    function renderUpcomingBills(pendingItems) {
+      const container = document.getElementById('upcoming-bills-list');
+      if (pendingItems.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-6 px-4 bg-[#E6F7FA] rounded-2xl border border-[#43C0D8]/40">
+            <p class="text-3xl mb-1">🎉</p>
+            <p class="text-base font-extrabold text-[#08243E]">¡No tienes cuentas pendientes en ${state.activeCurrency}!</p>
+            <p class="text-sm text-[#0B2B4A] mt-0.5">Estás al día con todos tus pagos.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = pendingItems.map(item => {
+        const cat = getCategoryMeta(item.category);
+        const dueInfo = getDueStatusInfo(item.dueDate);
+        const displayTitle = item.note ? escapeHtml(item.note) : cat.label;
+
+        return `
+          <div class="p-4 rounded-2xl bg-[#F3F7FA] border-2 border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-2xl shrink-0">
+                ${cat.icon}
+              </div>
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="text-lg font-extrabold text-[#08243E]">${displayTitle}</h3>
+                  <span class="text-xs font-extrabold px-2.5 py-1 rounded-full ${dueInfo.badgeClass}">
+                    ${dueInfo.label}
+                  </span>
+                </div>
+                <p class="text-xl font-extrabold text-[#0B2B4A] mt-0.5">
+                  ${formatMoney(item.amount, item.currency)}
+                </p>
+              </div>
+            </div>
+
+            <button type="button" onclick="markAsPaid('${item.id}')"
+              class="w-full sm:w-auto bg-[#7DC242] hover:bg-[#6EB235] active:scale-95 text-[#08243E] font-extrabold text-base px-4 py-3 rounded-xl shadow-xs transition cursor-pointer shrink-0">
+              Ya la pagué ✓
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderRecentPaid(paidItems) {
+      const container = document.getElementById('recent-paid-list');
+      if (paidItems.length === 0) {
+        container.innerHTML = `
+          <p class="text-base text-slate-500 text-center py-4">
+            Aún no has anotado gastos pagados en ${state.activeCurrency}.
+          </p>
+        `;
+        return;
+      }
+
+      container.innerHTML = paidItems.map(item => {
+        const cat = getCategoryMeta(item.category);
+        const displayTitle = item.note ? escapeHtml(item.note) : cat.label;
+        return `
+          <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="text-2xl">${cat.icon}</span>
+              <div class="truncate">
+                <p class="font-bold text-slate-900 text-base truncate">${displayTitle}</p>
+                <p class="text-xs text-slate-500 font-medium">${cat.label}</p>
+              </div>
+            </div>
+            <span class="font-extrabold text-slate-800 text-base shrink-0 ml-2">
+              - ${formatMoney(item.amount, item.currency)}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAllPendingList(pendingItems) {
+      const container = document.getElementById('all-pending-list');
+      if (pendingItems.length === 0) {
+        container.innerHTML = `<p class="text-base text-slate-500 py-3">No hay cuentas pendientes en esta moneda.</p>`;
+        return;
+      }
+      container.innerHTML = pendingItems.map(item => {
+        const cat = getCategoryMeta(item.category);
+        const dueInfo = getDueStatusInfo(item.dueDate);
+        const displayTitle = item.note ? escapeHtml(item.note) : cat.label;
+        return `
+          <div class="p-4 rounded-2xl bg-[#F3F7FA] border-2 border-[#43C0D8]/40 space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <span class="text-3xl">${cat.icon}</span>
+                <div>
+                  <h4 class="text-lg font-extrabold text-[#08243E]">${displayTitle}</h4>
+                  <span class="inline-block mt-1 text-xs font-extrabold px-2.5 py-1 rounded-full ${dueInfo.badgeClass}">
+                    ${dueInfo.label}
+                  </span>
+                </div>
+              </div>
+              <button type="button" onclick="deleteMovement('${item.id}')" aria-label="Eliminar registro"
+                class="text-slate-400 hover:text-rose-600 p-2 text-lg font-bold cursor-pointer">
+                🗑️
+              </button>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-200">
+              <span class="text-xl font-extrabold text-[#08243E]">${formatMoney(item.amount, item.currency)}</span>
+              <button type="button" onclick="markAsPaid('${item.id}')"
+                class="bg-[#7DC242] hover:bg-[#6EB235] text-[#08243E] font-extrabold text-base px-4 py-2.5 rounded-xl transition cursor-pointer">
+                Ya la pagué ✓
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAllPaidList(paidItems) {
+      const container = document.getElementById('all-paid-list');
+      if (paidItems.length === 0) {
+        container.innerHTML = `<p class="text-base text-slate-500 py-3">Aún no hay pagos registrados este mes.</p>`;
+        return;
+      }
+      container.innerHTML = paidItems.map(item => {
+        const cat = getCategoryMeta(item.category);
+        const displayTitle = item.note ? escapeHtml(item.note) : cat.label;
+        return `
+          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="text-2xl">${cat.icon}</span>
+              <div class="truncate">
+                <p class="font-bold text-slate-900 text-base truncate">${displayTitle}</p>
+                <p class="text-xs text-emerald-700 font-bold">✓ Pagado</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="font-extrabold text-slate-900 text-base">${formatMoney(item.amount, item.currency)}</span>
+              <button type="button" onclick="deleteMovement('${item.id}')" aria-label="Eliminar"
+                class="text-slate-400 hover:text-rose-600 p-1.5 text-base cursor-pointer">
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSavingsTab(curr, totals) {
+      const goal = Number(state.savingsGoals[curr]) || 1;
+      const saved = totals.saved;
+      const pct = Math.min(100, Math.round((saved / goal) * 100));
+
+      document.getElementById('savings-curr-name').textContent = CURRENCY_INFO[curr].name;
+      document.getElementById('savings-total-display').textContent = formatMoney(saved, curr);
+      document.getElementById('savings-goal-display').textContent = formatMoney(goal, curr);
+      document.getElementById('savings-progress-bar').style.width = `${pct}%`;
+      document.getElementById('savings-progress-text').textContent =
+        pct >= 100
+          ? '🎉 ¡Felicidades! Ya cumpliste tu meta de ahorro.'
+          : `Llevas el ${pct}% de tu meta de ahorro.`;
+
+      document.getElementById('savings-available-hint').textContent = formatMoney(Math.max(0, totals.available), curr);
+
+      // Resumen en 3 monedas
+      ['CLP', 'USD', 'EUR'].forEach(c => {
+        document.getElementById(`all-savings-${c}`).textContent = formatMoney(state.savings[c] || 0, c);
+      });
+    }
+
+    // =========================================================================
+    // ACCIONES DEL USUARIO
+    // =========================================================================
+    function setActiveCurrency(curr) {
+      state.activeCurrency = curr;
+      bannerDismissed = false;
+      saveState();
+      renderAll();
+    }
+
+    function switchTab(tabName) {
+      currentTab = tabName;
+      ['hoy', 'cuentas', 'ahorro'].forEach(t => {
+        const section = document.getElementById(`tab-${t}`);
+        if (t === tabName) {
+          section.classList.remove('hidden');
+        } else {
+          section.classList.add('hidden');
+        }
+      });
+      updateTabNavigationUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateTabNavigationUI() {
+      ['hoy', 'cuentas', 'ahorro'].forEach(t => {
+        const navBtn = document.getElementById(`nav-${t}`);
+        if (t === currentTab) {
+          navBtn.className = 'flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-2xl font-extrabold text-sm sm:text-base bg-[#08243E] text-[#55CBE0] shadow-xs transition cursor-pointer relative';
+        } else {
+          navBtn.className = 'flex-1 flex flex-col items-center justify-center py-2 px-2 rounded-2xl font-bold text-sm sm:text-base text-slate-600 hover:text-[#08243E] transition cursor-pointer relative';
+        }
+      });
+    }
+
+    function markAsPaid(id) {
+      const idx = state.movements.findIndex(m => m.id === id);
+      if (idx !== -1) {
+        state.movements[idx].status = 'paid';
+        saveState();
+        renderAll();
+        showToast('¡Listo! Cuenta marcada como pagada', '✅');
+      }
+    }
+
+    function deleteMovement(id) {
+      state.movements = state.movements.filter(m => m.id !== id);
+      saveState();
+      renderAll();
+      showToast('Registro eliminado', '🗑️');
+    }
+
+    function addSavings() {
+      const input = document.getElementById('save-amount-input');
+      const amount = parseFloat(input.value);
+      const curr = state.activeCurrency;
+      const totals = getTotalsForCurrency(curr);
+
+      if (!amount || amount <= 0) {
+        showToast('Escribe un monto mayor a 0', '⚠️');
+        return;
+      }
+      if (amount > totals.available) {
+        showToast('No tienes suficiente disponible este mes para apartar ese monto', '⚠️');
+        return;
+      }
+
+      state.savings[curr] = (Number(state.savings[curr]) || 0) + amount;
+      input.value = '';
+      saveState();
+      renderAll();
+      showToast(`¡Guardaste ${formatMoney(amount, curr)} en tu ahorro!`, '🐷');
+    }
+
+    // =========================================================================
+    // MODAL AGREGAR GASTO O CUENTA
+    // =========================================================================
+    function renderCategoryButtons() {
+      const grid = document.getElementById('category-grid');
+      grid.innerHTML = CATEGORIES.map(cat => {
+        const isSelected = cat.id === selectedCategory;
+        const styleClass = isSelected
+          ? 'bg-[#08243E] text-[#55CBE0] border-[#08243E] shadow-sm'
+          : 'bg-[#F3F7FA] text-[#08243E] border-slate-200 hover:bg-slate-100';
+
+        return `
+          <button type="button" onclick="selectCategory('${cat.id}')"
+            class="p-3 rounded-2xl border-2 flex flex-col items-center justify-center gap-1 transition cursor-pointer ${styleClass}">
+            <span class="text-2xl">${cat.icon}</span>
+            <span class="text-sm font-extrabold">${cat.label}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectCategory(catId) {
+      selectedCategory = catId;
+      renderCategoryButtons();
+    }
+
+    function setFormStatus(status) {
+      selectedFormStatus = status;
+      const btnPaid = document.getElementById('btn-status-paid');
+      const btnPending = document.getElementById('btn-status-pending');
+      const dueContainer = document.getElementById('due-date-container');
+      const dueInput = document.getElementById('input-due-date');
+
+      if (status === 'paid') {
+        btnPaid.className = 'p-3.5 rounded-2xl border-2 border-[#7DC242] bg-[#F1FAE8] text-[#08243E] font-extrabold text-base text-left flex items-center gap-3 transition cursor-pointer';
+        btnPending.className = 'p-3.5 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 font-bold text-base text-left flex items-center gap-3 transition cursor-pointer';
+        dueContainer.classList.add('hidden');
+        dueInput.required = false;
+      } else {
+        btnPending.className = 'p-3.5 rounded-2xl border-2 border-[#43C0D8] bg-[#E6F7FA] text-[#08243E] font-extrabold text-base text-left flex items-center gap-3 transition cursor-pointer';
+        btnPaid.className = 'p-3.5 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 font-bold text-base text-left flex items-center gap-3 transition cursor-pointer';
+        dueContainer.classList.remove('hidden');
+        dueInput.required = true;
+        if (!dueInput.value) {
+          dueInput.value = getRelativeDateISO(3);
+        }
+      }
+    }
+
+    function openAddModal(defaultStatus = 'paid') {
+      document.getElementById('add-form').reset();
+      document.getElementById('input-currency').value = state.activeCurrency;
+      selectedCategory = 'super';
+      renderCategoryButtons();
+      setFormStatus(defaultStatus);
+      document.getElementById('modal-add').classList.remove('hidden');
+    }
+
+    function closeAddModal() {
+      document.getElementById('modal-add').classList.add('hidden');
+    }
+
+    function handleSaveMovement(event) {
+      event.preventDefault();
+      const amount = parseFloat(document.getElementById('input-amount').value);
+      const currency = document.getElementById('input-currency').value;
+      const note = document.getElementById('input-note').value.trim();
+      const dueDate = document.getElementById('input-due-date').value;
+
+      if (!amount || amount <= 0) {
+        showToast('Por favor escribe un monto válido', '⚠️');
+        return;
+      }
+
+      const newMovement = {
+        id: 'mov_' + Date.now(),
+        category: selectedCategory,
+        note: note,
+        amount: amount,
+        currency: currency,
+        status: selectedFormStatus,
+        dueDate: selectedFormStatus === 'pending' ? dueDate : getRelativeDateISO(0),
+        createdAt: getRelativeDateISO(0)
+      };
+
+      state.movements.push(newMovement);
+      state.activeCurrency = currency;
+      bannerDismissed = false;
+      saveState();
+      closeAddModal();
+      renderAll();
+
+      if (selectedFormStatus === 'pending') {
+        showToast('¡Cuenta guardada con recordatorio!', '🔔');
+      } else {
+        showToast('¡Gasto anotado!', '✅');
+      }
+    }
+
+    // =========================================================================
+    // MODALES DE PRESUPUESTO, META Y LIMPIEZA
+    // =========================================================================
+    function openBudgetModal() {
+      const curr = state.activeCurrency;
+      document.getElementById('budget-modal-curr').textContent = `${curr} ${CURRENCY_INFO[curr].symbol}`;
+      document.getElementById('budget-input').value = state.budgets[curr] || '';
+      document.getElementById('modal-budget').classList.remove('hidden');
+    }
+
+    function closeBudgetModal() {
+      document.getElementById('modal-budget').classList.add('hidden');
+    }
+
+    function saveBudget() {
+      const val = parseFloat(document.getElementById('budget-input').value);
+      if (isNaN(val) || val < 0) {
+        showToast('Escribe un monto válido', '⚠️');
+        return;
+      }
+      state.budgets[state.activeCurrency] = val;
+      saveState();
+      closeBudgetModal();
+      renderAll();
+      showToast('¡Dinero del mes actualizado!', '✅');
+    }
+
+    function openGoalModal() {
+      const curr = state.activeCurrency;
+      document.getElementById('goal-modal-curr').textContent = `${curr} ${CURRENCY_INFO[curr].symbol}`;
+      document.getElementById('goal-input').value = state.savingsGoals[curr] || '';
+      document.getElementById('modal-goal').classList.remove('hidden');
+    }
+
+    function closeGoalModal() {
+      document.getElementById('modal-goal').classList.add('hidden');
+    }
+
+    function saveGoal() {
+      const val = parseFloat(document.getElementById('goal-input').value);
+      if (!val || val <= 0) {
+        showToast('Escribe una meta mayor a 0', '⚠️');
+        return;
+      }
+      state.savingsGoals[state.activeCurrency] = val;
+      saveState();
+      closeGoalModal();
+      renderAll();
+      showToast('¡Meta de ahorro actualizada!', '🎯');
+    }
+
+    function openConfirmClearModal() {
+      document.getElementById('modal-clear').classList.remove('hidden');
+    }
+
+    function closeConfirmClearModal() {
+      document.getElementById('modal-clear').classList.add('hidden');
+    }
+
+    function clearAllData() {
+      state = {
+        activeCurrency: state.activeCurrency,
+        budgets: { CLP: 0, USD: 0, EUR: 0 },
+        savings: { CLP: 0, USD: 0, EUR: 0 },
+        savingsGoals: { CLP: 100000, USD: 200, EUR: 200 },
+        movements: []
+      };
+      saveState();
+      closeConfirmClearModal();
+      renderAll();
+      showToast('Todo quedó en cero. ¡Listo para empezar!', '🧹');
+    }
+
+    function restoreSampleData() {
+      state = getInitialSampleState();
+      bannerDismissed = false;
+      saveState();
+      renderAll();
+      showToast('Datos de ejemplo cargados nuevamente', '🔄');
+    }
+
+    // =========================================================================
+    // UTILIDADES VISUALES
+    // =========================================================================
+    let toastTimeout = null;
+    function showToast(message, icon = '✅') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = message;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.remove('hidden');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2800);
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // Inicializar al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAll();
+    });
+  </script>
+</body>
+</html>
+```
